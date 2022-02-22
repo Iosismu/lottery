@@ -52,11 +52,14 @@ contract Lottery {
     }
     function pushBet(byte challenges) internal returns (bool) {
        BetInfo memory b;
-       b.bettor = msg.sender;
-       b.answerBlockNumber = block.number + BET_BLOCK_INTERNAL;
-       b.challenges = challenges;
+       b.bettor = msg.sender; // 20 byte
+       b.answerBlockNumber = block.number + BET_BLOCK_INTERNAL; // 32 byte 20,000 gas
+       b.challenges = challenges; // byte // 20,000 gas
+
        _bets[_tail] = b;
-       _tail++;
+       _tail++; // 32 byte 값 변화 // 20,000 gas -> 처음 초기화 될 때는 20,000 gas가 들지만 1 > 2 , 2 > 3이 될 때에는 5,000 gas만 든다.
+       // 그래서 90846 -> 75846 으로 2번째 실행할 때는 15,000은 돌려밨는다.
+
        return true;
     }
     function popBet(uint256 index) internal returns (bool) {
